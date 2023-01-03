@@ -1,11 +1,11 @@
 package main
 
 import (
-	corehttp "net/http"
 	"template/config"
 	"template/http"
 	"template/http/handler"
 	"template/http/middleware"
+	"template/http/router"
 
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -14,15 +14,34 @@ import (
 func main() {
 	fx.New(
 		fx.Provide(config.LoadConfiguration,
-			http.NewHTTPServer,
+			zap.NewExample,
+			// public server
 			fx.Annotate(
-				http.NewRouter,
-				fx.ParamTags(`group:"middlewares"`, `group:"routes"`),
+				http.NewPublicHTTPServer,
+				fx.ParamTags(``, ``, ``, `name:"public-router"`),
 			),
-			http.AsRoute(handler.NewEchoHandler),
-			http.AsMiddleware(middleware.NewSimpleMiddleware),
-			http.AsMiddleware(middleware.NewSecondMiddleware),
-			zap.NewExample),
-		fx.Invoke(func(*corehttp.Server) {}),
+			fx.Annotate(
+				router.NewRouter,
+				fx.ParamTags(`group:"public-middlewares"`, `group:"public-routes"`),
+				fx.ResultTags(`name:"public-router"`),
+			),
+			router.AsRoute(handler.NewEchoHandler, "public-routes"),
+			middleware.AsMiddleware(middleware.NewSimpleMiddleware, "public-middlewares"),
+			middleware.AsMiddleware(middleware.NewSecondMiddleware, "public-middlewares"),
+
+			// private server
+			fx.Annotate(
+				http.NewPrivateHTTPServer,
+				fx.ParamTags(``, ``, ``, `name:"private-router"`),
+			),
+			fx.Annotate(
+				router.NewRouter,
+				fx.ParamTags(`group:"private-middlewares"`, `group:"private-routes"`),
+				fx.ResultTags(`name:"private-router"`),
+			),
+			router.AsRoute(handler.NewEchoHandler, "private-routes"),
+			middleware.AsMiddleware(middleware.NewSimpleMiddleware, "private-middlewares"),
+		),
+		fx.Invoke(func(*http.PublicServer, *http.PrivateServer) {}),
 	).Run()
 }

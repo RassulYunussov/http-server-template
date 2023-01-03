@@ -5,8 +5,14 @@ database:
   username: foo
   password: bar
 
-httpserver:
+privateHttpServer:
   port: 8080
-  requesttimeout: 30
-  readtimeout: 30
-  writetimeout: 30
+  requestTimeout: 30
+  readTimeout: 30
+  writeTimeout: 30
+
+publicHttpServer:
+  port: 8081
+  requestTimeout: 30
+  readTimeout: 30
+  writeTimeout: 30

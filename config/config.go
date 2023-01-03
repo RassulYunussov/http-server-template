@@ -8,12 +8,18 @@ type Configuration struct {
 	Application struct {
 		Name string
 	}
-	Httpserver struct {
+	PrivateHttpServer struct {
 		Port           int16
-		Readtimeout    int
-		Writetimeout   int
-		Requesttimeout int
-	}
+		ReadTimeout    int `yaml:"readTimeout"`
+		WriteTimeout   int `yaml:"writeTimeout"`
+		RequestTimeout int `yaml:"requestTimeout"`
+	} `yaml:"privateHttpServer"`
+	PublicHttpServer struct {
+		Port           int16
+		ReadTimeout    int `yaml:"readTimeout"`
+		WriteTimeout   int `yaml:"writeTimeout"`
+		RequestTimeout int `yaml:"requestTimeout"`
+	} `yaml:"publicHttpServer"`
 	Database struct {
 		Username string
 		Password string

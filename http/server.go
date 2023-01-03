@@ -5,20 +5,18 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"template/config"
 	"time"
 
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	muxtrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gorilla/mux"
 )
 
-func NewHTTPServer(lc fx.Lifecycle, log *zap.Logger, config config.Configuration, router *muxtrace.Router) *http.Server {
+func create(lc fx.Lifecycle, log *zap.Logger, port int16, readTimeout int, writeTimeout int, requestTimeout int, handler http.Handler) *http.Server {
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", config.Httpserver.Port),
-		ReadTimeout:  time.Second * time.Duration(config.Httpserver.Readtimeout),
-		WriteTimeout: time.Second * time.Duration(config.Httpserver.Writetimeout),
-		Handler:      http.TimeoutHandler(router, time.Second*time.Duration(config.Httpserver.Requesttimeout), "Timeout!"),
+		Addr:         fmt.Sprintf(":%d", port),
+		ReadTimeout:  time.Second * time.Duration(readTimeout),
+		WriteTimeout: time.Second * time.Duration(writeTimeout),
+		Handler:      http.TimeoutHandler(handler, time.Second*time.Duration(requestTimeout), "Timeout!"),
 	}
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
@@ -31,9 +29,9 @@ func NewHTTPServer(lc fx.Lifecycle, log *zap.Logger, config config.Configuration
 				if err := srv.Serve(ln); err != nil {
 					switch err {
 					case http.ErrServerClosed:
-						log.Info("HTTP server closed")
+						log.Info(fmt.Sprintf("HTTP server at %d closed", port))
 					default:
-						log.Error("HTTP server error", zap.Error(err))
+						log.Error(fmt.Sprintf("HTTP server at %d error", port), zap.Error(err))
 					}
 				}
 			}()
