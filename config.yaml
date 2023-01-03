@@ -1,0 +1,12 @@
+application:
+  name: demo
+
+database:
+  username: foo
+  password: bar
+
+httpserver:
+  port: 8080
+  requesttimeout: 30
+  readtimeout: 30
+  writetimeout: 30
