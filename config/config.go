@@ -2,28 +2,26 @@ package config
 
 import (
 	"go.uber.org/config"
+	"go.uber.org/fx"
 )
 
 type Configuration struct {
 	Application struct {
 		Name string
 	}
-	PrivateHttpServer struct {
-		Port           int16
-		ReadTimeout    int `yaml:"readTimeout"`
-		WriteTimeout   int `yaml:"writeTimeout"`
-		RequestTimeout int `yaml:"requestTimeout"`
-	} `yaml:"privateHttpServer"`
-	PublicHttpServer struct {
-		Port           int16
-		ReadTimeout    int `yaml:"readTimeout"`
-		WriteTimeout   int `yaml:"writeTimeout"`
-		RequestTimeout int `yaml:"requestTimeout"`
-	} `yaml:"publicHttpServer"`
-	Database struct {
+	PrivateHttpServer HttpServer `yaml:"privateHttpServer"`
+	PublicHttpServer  HttpServer `yaml:"publicHttpServer"`
+	Database          struct {
 		Username string
 		Password string
 	}
+}
+
+type HttpServer struct {
+	Port           int16
+	ReadTimeout    int `yaml:"readTimeout"`
+	WriteTimeout   int `yaml:"writeTimeout"`
+	RequestTimeout int `yaml:"requestTimeout"`
 }
 
 func LoadConfiguration() (Configuration, error) {
@@ -39,3 +37,5 @@ func LoadConfiguration() (Configuration, error) {
 
 	return c, nil
 }
+
+var ConfigurationModule = fx.Module("application-configuration", fx.Provide(LoadConfiguration))

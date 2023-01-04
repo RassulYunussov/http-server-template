@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
-	"template/http/middleware"
+	"template/http-server/middleware"
 
 	"go.uber.org/fx"
 	muxtrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gorilla/mux"

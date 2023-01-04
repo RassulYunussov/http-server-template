@@ -5,13 +5,13 @@ database:
   username: foo
   password: bar
 
-privateHttpServer:
+publicHttpServer:
   port: 8080
   requestTimeout: 30
   readTimeout: 30
   writeTimeout: 30
 
-publicHttpServer:
+privateHttpServer:
   port: 8081
   requestTimeout: 30
   readTimeout: 30
