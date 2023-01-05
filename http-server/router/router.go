@@ -28,7 +28,7 @@ func AsRoute(f any, tag string) any {
 	)
 }
 
-func NewRouter(middlewares []middleware.Middleware, routes []Route) *muxtrace.Router {
+func createRouter(middlewares []middleware.Middleware, routes []Route) *muxtrace.Router {
 	router := muxtrace.NewRouter()
 	sort.Sort(middleware.ByOrder(middlewares))
 	for _, m := range middlewares {

@@ -16,22 +16,22 @@ type PublicServer struct {
 	*http.Server
 }
 
-func NewPublicHTTPServer(lc fx.Lifecycle, log *zap.Logger, config config.Configuration, router *muxtrace.Router) *PublicServer {
-	return &PublicServer{create(lc, log, config.PublicHttpServer, router)}
+func NewPublicHTTPServer(p PublicHttpServerPamameters) *PublicServer {
+	return &PublicServer{create(p.Lifecycle, p.Log, p.Config.PublicHttpServer, p.Router)}
+}
+
+type PublicHttpServerPamameters struct {
+	fx.In
+	Lifecycle fx.Lifecycle
+	Log       *zap.Logger
+	Config    config.Configuration
+	Router    *muxtrace.Router `name:"public-router"`
 }
 
 var PublicServerModule = fx.Module("public-server",
 	fx.Provide(
-		// public server
-		fx.Annotate(
-			NewPublicHTTPServer,
-			fx.ParamTags(``, ``, ``, `name:"public-router"`),
-		),
-		fx.Annotate(
-			router.NewRouter,
-			fx.ParamTags(`group:"public-middlewares"`, `group:"public-routes"`),
-			fx.ResultTags(`name:"public-router"`),
-		),
+		NewPublicHTTPServer,
+		router.NewPublicRouter,
 		router.AsRoute(handler.NewEchoHandler, "public-routes"),
 		middleware.AsMiddleware(middleware.NewSimpleMiddleware, "public-middlewares"),
 		middleware.AsMiddleware(middleware.NewSecondMiddleware, "public-middlewares"),
